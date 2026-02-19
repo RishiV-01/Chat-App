@@ -23,7 +23,10 @@ const usePresenceStore = create((set, get) => ({
   },
 
   setOnlineUsers: (userIds) => {
-    set({ onlineUsers: new Set(userIds) });
+    const state = get();
+    const updated = new Set(state.onlineUsers);
+    userIds.forEach((id) => updated.add(id));
+    set({ onlineUsers: updated });
   },
 
   setTyping: (opportunityId, userId) => {

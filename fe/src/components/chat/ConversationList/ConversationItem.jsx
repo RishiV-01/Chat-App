@@ -1,6 +1,8 @@
 import Avatar from '../../common/Avatar';
 import Badge from '../../common/Badge';
 import useAuthStore from '../../../store/authStore';
+import usePresenceStore from '../../../store/presenceStore';
+import { formatRelativeTime } from '../../../utils/formatDate';
 
 function formatTimestamp(date) {
   if (!date) return { date: '', time: '' };
@@ -25,6 +27,10 @@ export default function ConversationItem({ opportunity, isActive, onClick }) {
     (p) => (p.userId?._id || p.userId) !== currentUserId,
   );
   const otherUser = otherParticipant?.userId;
+  const otherUserId = otherUser?._id || otherUser;
+
+  const isOnline = usePresenceStore((s) => otherUserId ? s.onlineUsers.has(otherUserId) : false);
+  const lastSeen = usePresenceStore((s) => otherUserId ? s.lastSeen[otherUserId] : null);
 
   const ts = formatTimestamp(lastMsg?.createdAt || opportunity.createdAt);
 
@@ -40,6 +46,11 @@ export default function ConversationItem({ opportunity, isActive, onClick }) {
       <div className="min-w-0 flex-1">
         <div className="font-bold text-sm text-gray-900 truncate">{opportunity.name}</div>
         <div className="truncate text-xs text-gray-500 mt-0.5">{preview}</div>
+        {otherUser && !isOnline && lastSeen && (
+          <div className="text-[10px] text-gray-400 mt-0.5">
+            Last seen {formatRelativeTime(lastSeen)}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col items-end gap-0.5 flex-shrink-0">

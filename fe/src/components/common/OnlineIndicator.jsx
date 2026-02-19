@@ -1,7 +1,15 @@
 import usePresenceStore from '../../store/presenceStore';
+import { formatRelativeTime } from '../../utils/formatDate';
 
 export default function OnlineIndicator({ userId, showLabel = false, userName = '' }) {
   const isOnline = usePresenceStore((s) => userId ? s.onlineUsers.has(userId) : false);
+  const lastSeen = usePresenceStore((s) => userId ? s.lastSeen[userId] : null);
+
+  const statusText = isOnline
+    ? 'Online'
+    : lastSeen
+      ? `Last seen ${formatRelativeTime(lastSeen)}`
+      : 'Offline';
 
   if (showLabel) {
     return (
@@ -12,7 +20,7 @@ export default function OnlineIndicator({ userId, showLabel = false, userName = 
           }`}
         />
         <span className="text-xs text-gray-500">
-          {userName && `${userName} - `}{isOnline ? 'Online' : 'Offline'}
+          {userName && `${userName} - `}{statusText}
         </span>
       </div>
     );
@@ -23,7 +31,7 @@ export default function OnlineIndicator({ userId, showLabel = false, userName = 
       className={`inline-block h-2.5 w-2.5 rounded-full ${
         isOnline ? 'bg-green-500' : 'bg-gray-400'
       }`}
-      title={isOnline ? 'Online' : 'Offline'}
+      title={statusText}
     />
   );
 }
