@@ -22,11 +22,22 @@ export default function App() {
   useEffect(() => {
     if (isAuthenticated && token) {
       connectSocket(token);
+    } else {
+      disconnectSocket();
     }
-    return () => {
-      if (!isAuthenticated) disconnectSocket();
-    };
+    return () => disconnectSocket();
   }, [isAuthenticated, token]);
+
+  // ==========================================================================
+  // PRODUCTION: The routing structure remains the same.
+  // The /login route handles the Cognito token handoff (not a real login form).
+  // The ProtectedRoute redirects unauthenticated users to /login, which
+  // will then redirect them to the parent app if no token is provided.
+  //
+  // If ChatApp is embedded in an iframe within the parent app, you may want
+  // to remove the /login route entirely and always expect the token via
+  // postMessage (see LoginPage.jsx for Pattern B).
+  // ==========================================================================
 
   return (
     <Routes>
