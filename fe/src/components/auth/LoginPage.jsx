@@ -4,6 +4,12 @@ import { MessageSquare } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import { getAllUsers } from '../../api/authApi';
 
+// =============================================================================
+// POC: Mock login page — user selection grid (current)
+// =============================================================================
+// This entire component is replaced in production by the Cognito token handoff.
+// See the PRODUCTION section below for the replacement.
+
 export default function LoginPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,3 +97,96 @@ export default function LoginPage() {
     </div>
   );
 }
+
+// =============================================================================
+// PRODUCTION: Cognito Token Handoff Page (uncomment & replace the above export)
+// =============================================================================
+// In production, this page is NOT a login form. It's a "receiving" page that:
+//   1. Receives the Cognito token from the parent app (via URL param or postMessage)
+//   2. Exchanges it with ChatApp backend
+//   3. Redirects to /chat on success
+//
+// There are two common patterns for receiving the token:
+//
+// --- Pattern A: Token via URL query parameter ---
+// Parent app opens ChatApp as: https://chatapp.company.com/login?token=<cognito_jwt>
+//
+// import { useEffect, useState } from 'react';
+// import { useNavigate, useSearchParams } from 'react-router-dom';
+// import { MessageSquare } from 'lucide-react';
+// import useAuthStore from '../../store/authStore';
+// // import { PARENT_APP_URL } from '../../config/constants';
+//
+// export default function LoginPage() {
+//   const [error, setError] = useState(null);
+//   const { loginWithCognitoToken, isAuthenticated } = useAuthStore();
+//   const navigate = useNavigate();
+//   const [searchParams] = useSearchParams();
+//
+//   useEffect(() => {
+//     if (isAuthenticated) {
+//       navigate('/chat');
+//       return;
+//     }
+//
+//     const token = searchParams.get('token');
+//     if (!token) {
+//       setError('No authentication token provided. Please access ChatApp from the main application.');
+//       return;
+//     }
+//
+//     // Exchange the Cognito token with ChatApp backend
+//     loginWithCognitoToken(token)
+//       .then(() => navigate('/chat'))
+//       .catch((err) => {
+//         console.error('Token exchange failed:', err);
+//         setError('Authentication failed. Please try again from the main application.');
+//       });
+//   }, [isAuthenticated]);
+//
+//   return (
+//     <div className="flex h-screen items-center justify-center bg-navy-900">
+//       <div className="w-full max-w-md px-6 text-center">
+//         <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-navy-700">
+//           <MessageSquare size={32} className="text-white" />
+//         </div>
+//         {error ? (
+//           <div className="mt-4 rounded-lg bg-red-50 p-4 text-red-700">
+//             <p>{error}</p>
+//             {/* <a href={PARENT_APP_URL} className="mt-2 inline-block text-sm underline">
+//               Return to main application
+//             </a> */}
+//           </div>
+//         ) : (
+//           <div className="mt-4">
+//             <div className="h-8 w-8 mx-auto animate-spin rounded-full border-4 border-navy-200 border-t-navy-800" />
+//             <p className="mt-4 text-navy-300">Authenticating...</p>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+//
+// --- Pattern B: Token via window.postMessage (iframe embedding) ---
+// Parent app embeds ChatApp in an iframe and sends the token via postMessage.
+//
+// useEffect(() => {
+//   function handleMessage(event) {
+//     // IMPORTANT: Validate the origin to prevent cross-origin attacks
+//     // if (event.origin !== PARENT_APP_ORIGIN) return;
+//
+//     const { type, token } = event.data;
+//     if (type === 'COGNITO_TOKEN' && token) {
+//       loginWithCognitoToken(token)
+//         .then(() => navigate('/chat'))
+//         .catch((err) => setError('Authentication failed'));
+//     }
+//   }
+//
+//   window.addEventListener('message', handleMessage);
+//   // Notify parent that ChatApp is ready to receive the token
+//   window.parent.postMessage({ type: 'CHATAPP_READY' }, '*');
+//
+//   return () => window.removeEventListener('message', handleMessage);
+// }, []);

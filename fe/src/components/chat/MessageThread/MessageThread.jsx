@@ -25,15 +25,22 @@ export default function MessageThread() {
 
   // Mark as read when viewing messages
   useEffect(() => {
-    if (activeOpportunityId && currentMessages.length > 0) {
-      const lastMsg = currentMessages[currentMessages.length - 1];
-      if (lastMsg.senderId?._id !== user?._id && lastMsg.senderId !== user?._id) {
-        emitEvent('mark_read', {
-          opportunityId: activeOpportunityId,
-          messageId: lastMsg._id,
-        });
-        useChatStore.getState().decrementUnread(activeOpportunityId);
-      }
+    if (!activeOpportunityId || currentMessages.length === 0) return;
+
+    // Find the last message from someone else (not current user)
+    const lastOtherMsg = [...currentMessages]
+      .reverse()
+      .find((m) => {
+        const sid = m.senderId?._id || m.senderId;
+        return sid !== user?._id;
+      });
+
+    if (lastOtherMsg) {
+      emitEvent('mark_read', {
+        opportunityId: activeOpportunityId,
+        messageId: lastOtherMsg._id,
+      });
+      useChatStore.getState().decrementUnread(activeOpportunityId);
     }
   }, [activeOpportunityId, currentMessages.length]);
 
