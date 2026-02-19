@@ -30,11 +30,11 @@ export default function MessageBubble({ message, isOwn }) {
   }
 
   return (
-    <div className="mb-5">
+    <div className="mb-5 bg-[#d3d3d36e] p-4 rounded-xl">
       {/* Sender label with timestamp - right-aligned for own, left-aligned for others */}
       <div className={`mb-1.5 ${isOwn ? 'text-right' : 'text-left'}`}>
         <span className="text-sm font-bold text-gray-800">{senderLabel}</span>
-        <span className="text-sm text-gray-500"> - {formatMessageTime(message.createdAt)}</span>
+        <span className="text-sm font-bold text-gray-800"> - {formatMessageTime(message.createdAt)}</span>
         {isOwn && (
           <span className="ml-1.5 inline-flex align-middle">{getStatusIcon()}</span>
         )}
@@ -42,9 +42,9 @@ export default function MessageBubble({ message, isOwn }) {
 
       {/* Message content - full-width flat section */}
       {message.content && (
-        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-gray-700">
-          {message.content}
-        </p>
+        <div className="whitespace-pre-wrap break-words text-sm leading-relaxed text-gray-700"
+          dangerouslySetInnerHTML={{ __html: message.content }}
+        />
       )}
 
       {/* File attachments - horizontal inline chips like Figma */}

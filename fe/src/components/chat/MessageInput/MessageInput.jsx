@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Bold, Italic, Underline, List, Paperclip } from 'lucide-react';
 import { emitEvent } from '../../../socket/socketManager';
 import useTyping from '../../../hooks/useTyping';
@@ -10,41 +10,79 @@ export default function MessageInput({ opportunityId, isReadOnly }) {
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const { startTyping, stopTyping } = useTyping(opportunityId);
+  const [activeFormats, setActiveFormats] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    insertUnorderedList: false,
+  });
+
   const { upload, uploading, progress } = useFileUpload();
 
+  const updateActiveFormats = () => {
+    setActiveFormats({
+      bold: document.queryCommandState('bold'),
+      italic: document.queryCommandState('italic'),
+      underline: document.queryCommandState('underline'),
+      insertUnorderedList: document.queryCommandState('insertUnorderedList'),
+    });
+  };
+  useEffect(() => {
+    document.addEventListener('selectionchange', updateActiveFormats);
+    return () => {
+      document.removeEventListener('selectionchange', updateActiveFormats);
+    };
+  }, []);
+
   const handleSend = useCallback(async () => {
-    const trimmed = content.trim();
-    if (!trimmed && !selectedFile) return;
+    const editor = textareaRef.current;
+    if (!editor) return;
+
+    const htmlContent = editor.innerHTML.trim();
+    const plainText = editor.innerText.trim();
+
+    // Prevent sending empty message
+    if (!plainText && !selectedFile) return;
 
     stopTyping();
 
     try {
       if (selectedFile) {
         const fileData = await upload(selectedFile, opportunityId);
+
         emitEvent('send_message', {
           opportunityId,
-          content: trimmed,
+          content: htmlContent, // use htmlContent
           type: 'file',
           file: fileData,
         });
       } else {
         emitEvent('send_message', {
           opportunityId,
-          content: trimmed,
+          content: htmlContent, // use htmlContent
           type: 'text',
         });
       }
 
+      // Clear editor
+      editor.innerHTML = '';
       setContent('');
       setSelectedFile(null);
-      textareaRef.current?.focus();
+
+      editor.focus();
     } catch (err) {
       console.error('Send failed:', err);
     }
-  }, [content, selectedFile, opportunityId, stopTyping, upload]);
+  }, [selectedFile, opportunityId, stopTyping, upload]);
 
   const handleKeyDown = (e) => {
+    const isListActive = document.queryCommandState('insertUnorderedList');
+
     if (e.key === 'Enter' && !e.shiftKey) {
+      if (isListActive) {
+        // Allow default behavior → creates new bullet
+        return;
+      }
       e.preventDefault();
       handleSend();
     }
@@ -60,19 +98,12 @@ export default function MessageInput({ opportunityId, isReadOnly }) {
     if (file) setSelectedFile(file);
   };
 
-  const applyFormat = (tag) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selected = content.substring(start, end);
-    const wrapped = `<${tag}>${selected}</${tag}>`;
-    setContent(content.substring(0, start) + wrapped + content.substring(end));
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + tag.length + 2, start + tag.length + 2 + selected.length);
-    }, 0);
+  const applyFormat = (command) => {
+    textareaRef.current?.focus();
+    document.execCommand(command, false, null);
+    updateActiveFormats();
   };
+
 
   if (isReadOnly) {
     return (
@@ -83,10 +114,10 @@ export default function MessageInput({ opportunityId, isReadOnly }) {
   }
 
   const formatButtons = [
-    { icon: Bold, tag: 'b', label: 'Bold' },
-    { icon: Italic, tag: 'i', label: 'Italic' },
-    { icon: Underline, tag: 'u', label: 'Underline' },
-    { icon: List, tag: 'li', label: 'List' },
+    { icon: Bold, command: 'bold', label: 'Bold' },
+    { icon: Italic, command: 'italic', label: 'Italic' },
+    { icon: Underline, command: 'underline', label: 'Underline' },
+    { icon: List, command: 'insertUnorderedList', label: 'List' },
   ];
 
   return (
@@ -107,18 +138,26 @@ export default function MessageInput({ opportunityId, isReadOnly }) {
       )}
 
       {/* Toolbar row: formatting buttons left, attachment icon right */}
-      <div className="flex items-center justify-between px-6 pt-3">
+      <div className="flex items-center justify-between px-4 py-1 bg-[#9ca3af30]">
         <div className="flex items-center gap-1">
-          {formatButtons.map(({ icon: Icon, tag, label }) => (
-            <button
-              key={tag}
-              onClick={() => applyFormat(tag)}
-              title={label}
-              className="flex h-7 w-7 items-center justify-center rounded text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-            >
-              <Icon size={18} />
-            </button>
-          ))}
+          {formatButtons.map(({ icon: Icon, command, label }) => {
+            const isActive = activeFormats[command];
+
+            return (
+              <button
+                key={command}
+                onClick={() => applyFormat(command)}
+                title={label}
+                className={`flex h-7 w-7 items-center justify-center rounded
+        ${isActive
+                    ? 'bg-blue-100 text-blue-600'
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                  }`}
+              >
+                <Icon size={18} />
+              </button>
+            );
+          })}
         </div>
 
         <input
@@ -132,29 +171,26 @@ export default function MessageInput({ opportunityId, isReadOnly }) {
         <button
           onClick={() => fileInputRef.current?.click()}
           title="Attach file"
-          className="flex h-7 w-7 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          className="flex h-7 w-7 items-center justify-center rounded text-black-400 hover:bg-gray-100 hover:text-gray-600"
         >
           <Paperclip size={18} />
         </button>
       </div>
 
       {/* Textarea */}
-      <div className="px-6 pb-4 pt-2">
-        <textarea
-          ref={textareaRef}
-          value={content}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          placeholder="Start typing..."
-          rows={2}
-          className="w-full resize-none rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-600 placeholder-gray-400 outline-none focus:border-navy-400 focus:ring-1 focus:ring-navy-400"
-          style={{ minHeight: '56px', maxHeight: '120px' }}
-          onInput={(e) => {
-            e.target.style.height = 'auto';
-            e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
-          }}
-        />
-      </div>
+      <div
+        ref={textareaRef}
+        contentEditable
+        onInput={(e) => {
+          setContent(e.currentTarget.innerHTML);
+          startTyping();
+        }}
+        onKeyDown={handleKeyDown}
+        className="w-full border-t px-4 py-3 text-sm text-gray-700 outline-none 
+             min-h-[56px] max-h-[120px] overflow-y-auto
+             [&>ul]:list-disc [&>ul]:pl-6"
+        suppressContentEditableWarning
+      />
     </div>
   );
 }

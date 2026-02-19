@@ -44,16 +44,31 @@ export default function MessageThread() {
       </div>
     );
   }
-
-  return (
-    <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-gray-300">
+return (
+  <div className="flex flex-1 rounded-xl bg-gradient-to-l from-pink-500 to-blue-500 p-[2px]">
+    <div className="flex flex-1 flex-col rounded-xl bg-white min-h-0">
+      
       <MessageHeader opportunity={opportunity} />
-      <MessageList messages={currentMessages} currentUserId={user?._id} />
-      <TypingIndicator opportunityId={activeOpportunityId} currentUserId={user?._id} />
+
+      {/* Scroll Area */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <MessageList
+          messages={currentMessages}
+          currentUserId={user?._id}
+        />
+      </div>
+
+      <TypingIndicator
+        opportunityId={activeOpportunityId}
+        currentUserId={user?._id}
+      />
+
       <MessageInput
         opportunityId={activeOpportunityId}
         isReadOnly={opportunity?.status !== 'active'}
       />
+
     </div>
-  );
+  </div>
+);
 }
