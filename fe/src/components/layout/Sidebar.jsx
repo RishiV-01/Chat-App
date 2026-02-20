@@ -8,25 +8,33 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
+import useUiStore from '../../store/uiStore';
 import { disconnectSocket } from '../../socket/socketManager';
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', active: false },
-  { icon: Users, label: 'Contacts', active: false },
-  { icon: Mail, label: 'Messages', active: true },
-  { icon: Settings, label: 'Settings', active: false },
-  { icon: Users, label: 'Users', active: false },
-  { icon: HelpCircle, label: 'Help', active: false },
+  { icon: LayoutDashboard, label: 'Dashboard', view: null },
+  { icon: Users, label: 'Opportunities', view: 'opportunities' },
+  { icon: Mail, label: 'Messages', view: 'messages' },
+  { icon: Settings, label: 'Settings', view: null },
+  { icon: Users, label: 'Users', view: null },
+  { icon: HelpCircle, label: 'Help', view: null },
 ];
 
 export default function Sidebar() {
   const { user, logout } = useAuthStore();
+  const { activeView, setActiveView } = useUiStore();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     disconnectSocket();
     logout();
     navigate('/login');
+  };
+
+  const handleNavClick = (view) => {
+    if (view) {
+      setActiveView(view);
+    }
   };
 
   const initials = user?.name
@@ -42,19 +50,25 @@ export default function Sidebar() {
 
       {/* Nav items */}
       <nav className="flex flex-1 flex-col items-center gap-1">
-        {navItems.map(({ icon: Icon, label, active }) => (
-          <button
-            key={label}
-            title={label}
-            className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
-              active
-                ? 'bg-navy-800 text-white'
-                : 'text-navy-600 hover:bg-gray-100 hover:text-navy-800'
-            }`}
-          >
-            <Icon size={18} />
-          </button>
-        ))}
+        {navItems.map(({ icon: Icon, label, view }) => {
+          const isActive = view && activeView === view;
+          return (
+            <button
+              key={label}
+              title={label}
+              onClick={() => handleNavClick(view)}
+              className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+                isActive
+                  ? 'bg-navy-800 text-white'
+                  : view
+                    ? 'text-navy-600 hover:bg-gray-100 hover:text-navy-800 cursor-pointer'
+                    : 'text-gray-300 cursor-default'
+              }`}
+            >
+              <Icon size={18} />
+            </button>
+          );
+        })}
       </nav>
 
       {/* Logout button */}

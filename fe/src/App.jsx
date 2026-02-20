@@ -3,8 +3,9 @@ import { useEffect } from 'react';
 import useAuthStore from './store/authStore';
 import LoginPage from './components/auth/LoginPage';
 import AppLayout from './components/layout/AppLayout';
-import ChatPage from './components/chat/ChatPage';
-import { connectSocket, disconnectSocket } from './socket/socketManager';
+import EmbedWrapper from './components/embed/EmbedWrapper';
+import EmbedChatPage from './components/embed/EmbedChatPage';
+import EmbedSingleChat from './components/embed/EmbedSingleChat';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuthStore();
@@ -13,46 +14,47 @@ function ProtectedRoute({ children }) {
 }
 
 export default function App() {
-  const { isAuthenticated, token, loadSession } = useAuthStore();
+  const { isAuthenticated, loadSession } = useAuthStore();
 
   useEffect(() => {
     loadSession();
   }, []);
 
-  useEffect(() => {
-    if (isAuthenticated && token) {
-      connectSocket(token);
-    } else {
-      disconnectSocket();
-    }
-    return () => disconnectSocket();
-  }, [isAuthenticated, token]);
-
-  // ==========================================================================
-  // PRODUCTION: The routing structure remains the same.
-  // The /login route handles the Cognito token handoff (not a real login form).
-  // The ProtectedRoute redirects unauthenticated users to /login, which
-  // will then redirect them to the parent app if no token is provided.
-  //
-  // If ChatApp is embedded in an iframe within the parent app, you may want
-  // to remove the /login route entirely and always expect the token via
-  // postMessage (see LoginPage.jsx for Pattern B).
-  // ==========================================================================
-
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+
+      {/* Parent app shell - sidebar + content area (no socket needed here) */}
       <Route
-        path="/chat"
+        path="/app"
         element={
           <ProtectedRoute>
-            <AppLayout>
-              <ChatPage />
-            </AppLayout>
+            <AppLayout />
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to={isAuthenticated ? '/chat' : '/login'} replace />} />
+
+      {/* Embed routes - loaded in iframes, each manages its own socket */}
+      <Route
+        path="/embed/chat"
+        element={
+          <EmbedWrapper>
+            <EmbedChatPage />
+          </EmbedWrapper>
+        }
+      />
+      <Route
+        path="/embed/chat/:opportunityId"
+        element={
+          <EmbedWrapper>
+            <EmbedSingleChat />
+          </EmbedWrapper>
+        }
+      />
+
+      {/* Default redirects */}
+      <Route path="/chat" element={<Navigate to="/app" replace />} />
+      <Route path="*" element={<Navigate to={isAuthenticated ? '/app' : '/login'} replace />} />
     </Routes>
   );
 }
