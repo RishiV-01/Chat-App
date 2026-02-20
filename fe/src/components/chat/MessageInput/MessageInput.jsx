@@ -1,10 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Bold, Italic, Underline, List, Paperclip } from 'lucide-react';
+import { Bold, Italic, Underline, List, Paperclip, Send } from 'lucide-react';
 import { emitEvent } from '../../../socket/socketManager';
 import useTyping from '../../../hooks/useTyping';
 import useFileUpload from '../../../hooks/useFileUpload';
 
-export default function MessageInput({ opportunityId, isReadOnly }) {
+export default function MessageInput({ opportunityId, isReadOnly, showActionButtons }) {
   const [content, setContent] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const textareaRef = useRef(null);
@@ -186,11 +186,32 @@ export default function MessageInput({ opportunityId, isReadOnly }) {
           startTyping();
         }}
         onKeyDown={handleKeyDown}
-        className="w-full border-t px-4 py-3 text-sm text-gray-700 outline-none 
+        data-placeholder="Start typing..."
+        className="w-full border-t px-4 py-3 text-sm text-gray-700 outline-none
              min-h-[56px] max-h-[120px] overflow-y-auto
-             [&>ul]:list-disc [&>ul]:pl-6"
+             [&>ul]:list-disc [&>ul]:pl-6
+             empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400"
         suppressContentEditableWarning
       />
+
+      {/* Action buttons - shown in modal/embed mode */}
+      {showActionButtons && (
+        <div className="flex items-center justify-end gap-3 border-t px-4 py-3">
+          <button
+            onClick={() => {}}
+            className="rounded-lg border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+          >
+            Save Draft
+          </button>
+          <button
+            onClick={handleSend}
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            Send
+            <Send size={14} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

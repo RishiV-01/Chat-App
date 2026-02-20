@@ -22,7 +22,7 @@ export default function EmbedSingleChat() {
   return (
     <div className="flex h-screen w-screen flex-col bg-white">
       <div className="flex flex-1 overflow-hidden p-2">
-        <MessageThread />
+        <MessageThread showActionButtons />
       </div>
       <FilePreviewModal />
     </div>

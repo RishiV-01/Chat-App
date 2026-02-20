@@ -7,7 +7,7 @@ import MessageList from './MessageList';
 import TypingIndicator from './TypingIndicator';
 import MessageInput from '../MessageInput/MessageInput';
 
-export default function MessageThread() {
+export default function MessageThread({ showActionButtons }) {
   const { activeOpportunityId, messages } = useChatStore();
   const { user } = useAuthStore();
   const opportunity = useChatStore((s) => s.opportunities.find((o) => o._id === s.activeOpportunityId));
@@ -73,6 +73,7 @@ return (
       <MessageInput
         opportunityId={activeOpportunityId}
         isReadOnly={opportunity?.status !== 'active'}
+        showActionButtons={showActionButtons}
       />
 
     </div>
