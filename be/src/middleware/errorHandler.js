@@ -12,7 +12,7 @@ export function errorHandler(err, req, res, _next) {
   }
 
   if (err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(413).json({ error: 'File too large', maxSize: '50MB' });
+    return res.status(413).json({ error: 'File too large', maxSize: '100MB' });
   }
 
   res.status(err.status || 500).json({

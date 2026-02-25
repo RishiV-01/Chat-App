@@ -11,20 +11,15 @@ export function connectSocket(token) {
   socket = io(SOCKET_URL, {
     reconnection: true,
     reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000,
-    reconnectionAttempts: 10,
-    // ==========================================================================
-    // PRODUCTION: Additional socket options for production stability (uncomment)
-    // ==========================================================================
-    // transports: ['websocket'],       // Skip long-polling, use WebSocket directly
-    // upgrade: false,                  // Don't upgrade from polling to WS
-    // timeout: 20000,                  // Connection timeout
-    // forceNew: true,                  // Don't reuse stale connections
+    reconnectionDelayMax: 60000,
+    reconnectionAttempts: Infinity,
+    transports: ['websocket'],
+    upgrade: false,
+    timeout: 20000,
   });
 
   socket.on('connect', () => {
     console.log('Socket connected');
-    // The token here is the Cognito JWT in production (same flow, just a different token)
     socket.emit('authenticate', { token });
   });
 
@@ -71,7 +66,6 @@ export function connectSocket(token) {
   });
 
   socket.on('unread_update', ({ opportunityId }) => {
-    // Trigger a refetch of opportunity list for unread counts
     const state = useChatStore.getState();
     if (opportunityId !== state.activeOpportunityId) {
       state.fetchOpportunities();
@@ -80,16 +74,6 @@ export function connectSocket(token) {
 
   socket.on('error', (err) => {
     console.error('Socket error:', err);
-
-    // ==========================================================================
-    // PRODUCTION: Handle auth failures — redirect to parent app (uncomment)
-    // ==========================================================================
-    // if (err.code === 'AUTH_FAILED') {
-    //   localStorage.removeItem('token');
-    //   import('../config/constants').then(({ PARENT_APP_URL }) => {
-    //     window.location.href = PARENT_APP_URL;
-    //   });
-    // }
   });
 
   socket.on('disconnect', () => {

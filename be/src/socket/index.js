@@ -2,7 +2,6 @@ import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import config from '../config/index.js';
 import User from '../models/User.js';
-import { presenceService } from '../services/presenceService.js';
 import { handleConnection, handleDisconnect } from './handlers/connection.js';
 import { handleSendMessage, handleMarkRead } from './handlers/messaging.js';
 import { handleTypingStart, handleTypingStop } from './handlers/typing.js';
@@ -22,20 +21,14 @@ export function initSocket(server) {
       methods: ['GET', 'POST'],
       credentials: true,
     },
-    // ==========================================================================
-    // PRODUCTION: Socket.io scaling options (uncomment for EKS multi-pod)
-    // ==========================================================================
-    // pingTimeout: 60000,      // How long to wait for pong before disconnect
-    // pingInterval: 25000,     // How often to ping clients
-    // maxHttpBufferSize: 1e6,  // 1MB max message size
+    pingTimeout: 60000,
+    pingInterval: 25000,
+    maxHttpBufferSize: 1e6,
   });
 
   io.on('connection', (socket) => {
     logger.debug(`Socket connected: ${socket.id}`);
 
-    // =========================================================================
-    // POC: Socket authentication using local JWT secret (current)
-    // =========================================================================
     socket.on('authenticate', async (data) => {
       try {
         const decoded = jwt.verify(data.token, config.jwtSecret);
@@ -55,56 +48,6 @@ export function initSocket(server) {
         socket.emit('error', { code: 'AUTH_FAILED', message: 'Invalid token' });
       }
     });
-
-    // =========================================================================
-    // PRODUCTION: Socket authentication using Cognito JWKS (uncomment & replace)
-    // =========================================================================
-    // Uses the same Cognito token the parent app provides.
-    //
-    // Prerequisites: same as middleware/auth.js (npm install jwks-rsa)
-    //
-    // import jwksRsa from 'jwks-rsa';
-    //
-    // const jwksClient = jwksRsa({
-    //   jwksUri: `https://cognito-idp.${config.cognito.region}.amazonaws.com/${config.cognito.userPoolId}/.well-known/jwks.json`,
-    //   cache: true,
-    //   rateLimit: true,
-    // });
-    //
-    // socket.on('authenticate', async (data) => {
-    //   try {
-    //     const decoded = await new Promise((resolve, reject) => {
-    //       jwt.verify(
-    //         data.token,
-    //         (header, cb) => {
-    //           jwksClient.getSigningKey(header.kid, (err, key) => {
-    //             if (err) return cb(err);
-    //             cb(null, key.getPublicKey());
-    //           });
-    //         },
-    //         {
-    //           issuer: config.cognito.issuer,
-    //           algorithms: ['RS256'],
-    //         },
-    //         (err, decoded) => (err ? reject(err) : resolve(decoded)),
-    //       );
-    //     });
-    //
-    //     const user = await User.findOne({ cognitoSub: decoded.sub });
-    //     if (!user) {
-    //       socket.emit('error', { code: 'AUTH_FAILED', message: 'User not provisioned' });
-    //       return;
-    //     }
-    //
-    //     socket.userId = user._id.toString();
-    //     socket.user = user;
-    //
-    //     handleConnection(io, socket, user);
-    //     socket.emit('authenticated', { user });
-    //   } catch (err) {
-    //     socket.emit('error', { code: 'AUTH_FAILED', message: 'Invalid Cognito token' });
-    //   }
-    // });
 
     // Messaging
     socket.on('send_message', (data) => {

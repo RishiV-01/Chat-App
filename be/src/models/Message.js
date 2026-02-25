@@ -10,6 +10,8 @@ const messageSchema = new mongoose.Schema({
     storagePath: String,
     mimeType: String,
     size: Number,
+    url: String,
+    e3Response: mongoose.Schema.Types.Mixed,
   },
   replyTo: { type: mongoose.Schema.Types.ObjectId, ref: 'Message', default: null },
   status: {

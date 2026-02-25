@@ -22,7 +22,10 @@ opportunitySchema.index({ 'participants.userId': 1 });
 opportunitySchema.index({ status: 1 });
 
 opportunitySchema.methods.isParticipant = function (userId) {
-  return this.participants.some((p) => p.userId.toString() === userId.toString());
+  return this.participants.some((p) => {
+    const id = p.userId._id || p.userId;
+    return id.toString() === userId.toString();
+  });
 };
 
 opportunitySchema.methods.isReadOnly = function () {

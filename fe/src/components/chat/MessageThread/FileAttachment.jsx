@@ -5,10 +5,10 @@ export default function FileAttachment({ file }) {
 
   const isImage = file.mimeType?.startsWith('image/');
   const isPdf = file.mimeType === 'application/pdf';
-  const fileUrl = file.storagePath ? `/uploads/${file.storagePath}` : file.url;
+  const fileUrl = file.url || (file.storagePath ? `/uploads/${file.storagePath}` : null);
 
   const handleClick = () => {
-    if (isImage || isPdf) {
+    if ((isImage || isPdf) && fileUrl) {
       openFilePreview(fileUrl, file.mimeType, file.originalName);
     } else if (fileUrl) {
       window.open(fileUrl, '_blank');

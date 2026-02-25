@@ -7,4 +7,4 @@ export const sendMessageRest = (oppId, data) =>
   api.post(`/messages/opportunities/${oppId}/messages`, data);
 
 export const exportChat = (oppId) =>
-  api.get(`/messages/opportunities/${oppId}/export`, { responseType: 'blob' });
+  api.get(`/messages/opportunities/${oppId}/export`);

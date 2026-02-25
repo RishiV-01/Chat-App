@@ -1,5 +1,4 @@
 {
   "watch": ["src"],
-  "ext": "js,json",
-  "ignore": ["uploads"]
+  "ext": "js,json"
 }
