@@ -84,7 +84,7 @@ export default function OpportunitiesPage() {
 
                   <button
                     onClick={() => openOpportunityMessageModal(opp._id, opp.name)}
-                    className="flex items-center gap-2 rounded-full bg-gradient-to-r from-pink-500 to-blue-500 px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                    className="flex items-center gap-2 shadow-[0_4px_4px_#00000040] rounded-full bg-gradient-to-r from-[#162850] to-[#d2147d] px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                   >
                     <MessageCircle size={16} />
                     Message

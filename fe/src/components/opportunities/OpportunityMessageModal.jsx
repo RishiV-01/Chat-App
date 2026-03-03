@@ -42,13 +42,13 @@ export default function OpportunityMessageModal() {
 
   if (!isOpen || !opportunityId) return null;
 
-  const iframeSrc = `/embed/chat/${opportunityId}`;
+  const iframeSrc = `/embed/chat/${opportunityId}?variant=modal`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/40">
       <div className="mr-4 flex h-[90vh] w-[500px] flex-col overflow-hidden rounded-xl shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4">
+        <div className="flex items-center justify-between bg-gradient-to-r from-[#162850] to-[#1e6daf] px-6 py-2">
           <h2 className="text-lg font-bold uppercase tracking-widest text-white">
             Message
           </h2>

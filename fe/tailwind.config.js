@@ -20,6 +20,9 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
+      screens: {
+        'xs': '500px',
+      },
     },
   },
   plugins: [],

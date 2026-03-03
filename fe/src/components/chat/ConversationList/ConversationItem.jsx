@@ -35,28 +35,27 @@ export default function ConversationItem({ opportunity, isActive, onClick }) {
   const ts = formatTimestamp(lastMsg?.createdAt || opportunity.createdAt);
 
   return (
-    <div className={`flex p-[2px] w-[95%] mx-auto rounded-xl ${isActive ? 'bg-gradient-to-r from-pink-500 to-blue-500' : 'hover:bg-gray-50'
+    <div className={`flex p-[1px] w-[95%] mx-auto my-1 xs:my-1.5 sm:my-2 rounded-xl ${isActive ? 'bg-gradient-to-r from-[#162850] to-[#1e6daf] shadow-[0_4px_4px_#00000040]' : 'hover:bg-gray-50'
       }`}>
       <button
         onClick={onClick}
         className={`w-full items-center gap-3 border-gray-200  text-left transition-colors`}
       >
-        <div className='bg-gray-200 flex p-2 items-center gap-3 rounded-xl'>
+        <div className='bg-gray-200 flex p-1 xs:p-1.5 sm:p-2 items-center gap-1.5 xs:gap-2 sm:gap-3 rounded-xl'>
           <Avatar user={otherUser || { name: opportunity.name }} size="md" showPresence />
 
-      <div className="min-w-0 flex-1">
-        <div className="font-bold text-sm text-gray-900 truncate">{opportunity.name}</div>
-        <div className="truncate text-xs text-gray-500 mt-0.5">{preview}</div>
-        {otherUser && !isOnline && lastSeen && (
-          <div className="text-[10px] text-gray-400 mt-0.5">
-            Last seen {formatRelativeTime(lastSeen)}
+          <div className="min-w-0 flex-1">
+            <div className="font-bold text-[10px] xs:text-xs sm:text-sm text-gray-900 truncate">{opportunity.name}</div>
+            <div className="truncate text-[9px] xs:text-[10px] sm:text-xs text-gray-500 mt-0.5">{preview}</div>
+            {otherUser && !isOnline && lastSeen && (
+              <div className="text-[8px] xs:text-[9px] sm:text-[10px] text-gray-400 mt-0.5 hidden xs:block">
+                Last seen {formatRelativeTime(lastSeen)}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
           <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-            <span className="text-[11px] text-gray-400 leading-tight">{ts.date}</span>
-            <span className="text-[11px] text-gray-400 leading-tight">{ts.time}</span>
+            <span className="text-[9px] xs:text-[10px] sm:text-[11px] text-gray-400 leading-tight">{ts.date}</span>
+            <span className="text-[9px] xs:text-[10px] sm:text-[11px] text-gray-400 leading-tight">{ts.time}</span>
             <Badge count={opportunity.unreadCount} />
           </div>
         </div>

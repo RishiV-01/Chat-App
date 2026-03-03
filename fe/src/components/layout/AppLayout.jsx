@@ -68,7 +68,7 @@ export default function AppLayout() {
 
           {/* Messages iframe - stays mounted to keep socket alive */}
           <iframe
-            src="/embed/chat"
+            src="/embed/chat?variant=full"
             title="Message Centre"
             onLoad={() => setIframeLoaded(true)}
             className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-300 ${

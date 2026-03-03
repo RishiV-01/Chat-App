@@ -4,7 +4,7 @@ import MessageBubble from './MessageBubble';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import { isSameDay, formatDateDivider } from '../../../utils/formatDate';
 
-export default function MessageList({ messages, currentUserId }) {
+export default function MessageList({ messages, currentUserId, variant = 'full' }) {
   const containerRef = useRef(null);
   const bottomRef = useRef(null);
   const sentinelRef = useRef(null);
@@ -57,7 +57,7 @@ export default function MessageList({ messages, currentUserId }) {
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto px-6 py-4"
+      className={`flex-1 overflow-y-auto ${variant === 'modal' ? 'px-6 py-6' : 'px-6 py-4'}`}
     >
       {/* Load more sentinel */}
       {hasMore[activeOpportunityId] && (
@@ -89,7 +89,7 @@ export default function MessageList({ messages, currentUserId }) {
                 <div className="flex-1 border-t" />
               </div>
             )}
-            <MessageBubble message={msg} isOwn={isOwn} />
+            <MessageBubble message={msg} isOwn={isOwn} variant={variant} />
           </div>
         );
       })}

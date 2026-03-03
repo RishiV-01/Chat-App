@@ -9,19 +9,20 @@ export default function ConversationList() {
   const { openNewMessageModal } = useUiStore();
 
   return (
-    <div className="p-[2px] rounded-xl bg-gradient-to-r from-pink-500 to-blue-500">
-      <div className='flex w-[400px] h-[-webkit-fill-available] flex-shrink-0 flex-col bg-white rounded-xl'>
+    <div className="p-[2px] rounded-xl bg-gradient-to-r from-[#162850] to-[#1e6daf]">
+      <div className='flex w-[200px] xs:w-[240px] sm:w-[280px] md:w-[320px] lg:w-[400px] h-[-webkit-fill-available] flex-shrink-0 flex-col bg-white rounded-xl'>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-700">
-            Conversations ({opportunities.length})
+        <div className="flex items-center justify-between px-1.5 xs:px-2 sm:px-4 py-1.5 xs:py-2 sm:py-3">
+          <h2 className="text-[10px] xs:text-xs sm:text-sm font-bold uppercase tracking-wider text-gray-700">
+            Chats ({opportunities.length})
           </h2>
           <button
             onClick={openNewMessageModal}
-            className="flex items-center gap-2 rounded-full bg-gradient-to-r from-pink-500 to-blue-500 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#164060]"
+            className="flex items-center gap-1 xs:gap-1 sm:gap-2 rounded-full shadow-[0_4px_4px_#00000040] bg-gradient-to-r from-[#162850] to-[#d2147d] px-1.5 xs:px-2 sm:px-4 py-1 xs:py-1.5 sm:py-2 text-[9px] xs:text-[10px] sm:text-xs font-semibold text-white transition-colors hover:bg-[#164060]"
           >
-            <MessageCircle size={14} />
-            New Message
+            <MessageCircle size={10} className="xs:w-3 xs:h-3 sm:w-[14px] sm:h-[14px]" />
+            <span className="hidden xs:inline sm:hidden">New</span>
+            <span className="hidden sm:inline">New Message</span>
           </button>
         </div>
 
@@ -31,7 +32,7 @@ export default function ConversationList() {
           {loading ? (
             <LoadingSpinner />
           ) : opportunities.length === 0 ? (
-            <div className="p-6 text-center text-sm text-gray-500">No conversations yet</div>
+            <div className="p-3 xs:p-4 sm:p-6 text-center text-[10px] xs:text-xs sm:text-sm text-gray-500">No conversations yet</div>
           ) : (
             opportunities.map((opp) => (
               <ConversationItem

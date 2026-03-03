@@ -22,12 +22,12 @@ export default function ChatPage() {
   return (
     <div className="flex h-full flex-col bg-white">
       {/* Page title */}
-      <div className="px-8 pt-4 pb-3">
-        <h1 className="text-4xl font-light text-navy-600">Messages</h1>
+      <div className="px-3 xs:px-4 sm:px-8 pt-3 xs:pt-4 pb-2 xs:pb-3">
+        <h1 className="text-xl xs:text-2xl sm:text-4xl font-light text-navy-600">Messages</h1>
       </div>
 
       {/* Content - two card panels side by side */}
-      <div className="flex flex-1 gap-4 overflow-hidden px-8 pb-4">
+      <div className="flex flex-row flex-1 gap-2 xs:gap-3 sm:gap-4 overflow-hidden px-3 xs:px-4 sm:px-8 pb-3 xs:pb-4">
         <ConversationList />
         <MessageThread />
       </div>

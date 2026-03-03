@@ -18,6 +18,7 @@ const navItems = [
   { icon: Settings, label: 'Settings', view: null },
   { icon: Users, label: 'Users', view: null },
   { icon: HelpCircle, label: 'Help', view: null },
+  { icon: LogOut, label: 'Logout', view: 'logout', isLogout: true },
 ];
 
 export default function Sidebar() {
@@ -31,8 +32,10 @@ export default function Sidebar() {
     navigate('/login');
   };
 
-  const handleNavClick = (view) => {
-    if (view) {
+  const handleNavClick = (view, isLogout) => {
+    if (isLogout) {
+      handleLogout();
+    } else if (view) {
       setActiveView(view);
     }
   };
@@ -50,19 +53,21 @@ export default function Sidebar() {
 
       {/* Nav items */}
       <nav className="flex flex-1 flex-col items-center gap-1">
-        {navItems.map(({ icon: Icon, label, view }) => {
-          const isActive = view && activeView === view;
+        {navItems.map(({ icon: Icon, label, view, isLogout }) => {
+          const isActive = view && activeView === view && !isLogout;
           return (
             <button
               key={label}
               title={label}
-              onClick={() => handleNavClick(view)}
+              onClick={() => handleNavClick(view, isLogout)}
               className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
                 isActive
                   ? 'bg-navy-800 text-white'
-                  : view
-                    ? 'text-navy-600 hover:bg-gray-100 hover:text-navy-800 cursor-pointer'
-                    : 'text-gray-300 cursor-default'
+                  : isLogout
+                    ? 'text-navy-600 hover:bg-red-50 hover:text-red-500 cursor-pointer'
+                    : view
+                      ? 'text-navy-600 hover:bg-gray-100 hover:text-navy-800 cursor-pointer'
+                      : 'text-gray-300 cursor-default'
               }`}
             >
               <Icon size={18} />
@@ -70,15 +75,6 @@ export default function Sidebar() {
           );
         })}
       </nav>
-
-      {/* Logout button */}
-      <button
-        onClick={handleLogout}
-        title="Logout"
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-navy-600 transition-colors hover:bg-red-50 hover:text-red-500"
-      >
-        <LogOut size={18} />
-      </button>
     </div>
   );
 }

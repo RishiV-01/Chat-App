@@ -31,13 +31,13 @@ export default function MessageHeader({ opportunity }) {
 
   return (
     <div className="border-b">
-      <div className="flex items-center justify-between px-6 py-3">
-        <div>
-          <h3 className="text-sm font-bold uppercase tracking-wider text-navy-800">
+      <div className="flex items-center justify-between px-2 xs:px-3 sm:px-6 py-1.5 xs:py-2 sm:py-3">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-[10px] xs:text-xs sm:text-sm font-bold uppercase tracking-wider text-navy-800 truncate">
             [{opportunity.name}] Conversation
           </h3>
           {otherUser && (
-            <div className="mt-1">
+            <div className="mt-0.5 xs:mt-1">
               <OnlineIndicator
                 userId={otherUser._id || otherUser}
                 showLabel
@@ -49,17 +49,17 @@ export default function MessageHeader({ opportunity }) {
         <button
           onClick={handleExport}
           title="Export Chat"
-          className="flex items-center gap-1 rounded px-2 py-1 text-sm text-gray-500 hover:bg-gray-100"
+          className="flex items-center gap-0.5 xs:gap-1 rounded px-1.5 xs:px-2 py-0.5 xs:py-1 text-[10px] xs:text-xs sm:text-sm text-gray-500 hover:bg-gray-100 flex-shrink-0"
         >
-          <Download size={16} />
-          Export
+          <Download size={12} className="xs:w-[14px] xs:h-[14px] sm:w-4 sm:h-4" />
+          <span className="hidden xs:inline">Export</span>
         </button>
       </div>
 
       {opportunity.status !== 'active' && (
-        <div className="flex items-center gap-2 bg-amber-50 px-6 py-2 text-sm text-amber-700">
-          <Lock size={14} />
-          This opportunity is closed. Messages are read-only.
+        <div className="flex items-center gap-1.5 xs:gap-2 bg-amber-50 px-2 xs:px-3 sm:px-6 py-1.5 xs:py-2 text-[10px] xs:text-xs sm:text-sm text-amber-700">
+          <Lock size={10} className="xs:w-3 xs:h-3 sm:w-[14px] sm:h-[14px]" />
+          <span className="truncate">This opportunity is closed. Messages are read-only.</span>
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import useChatStore from '../../store/chatStore';
 import ConversationList from '../chat/ConversationList/ConversationList';
 import MessageThread from '../chat/MessageThread/MessageThread';
@@ -6,6 +7,8 @@ import NewMessageModal from '../chat/NewMessageModal/NewMessageModal';
 import FilePreviewModal from '../common/FilePreviewModal';
 
 export default function EmbedChatPage() {
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('variant') || 'full';
   const { fetchOpportunities, opportunities, activeOpportunityId, setActiveOpportunity } = useChatStore();
 
   useEffect(() => {
@@ -25,7 +28,7 @@ export default function EmbedChatPage() {
       </div>
       <div className="flex flex-1 gap-4 overflow-hidden px-8 pb-4">
         <ConversationList />
-        <MessageThread />
+        <MessageThread variant={variant} />
       </div>
       <NewMessageModal />
       <FilePreviewModal />

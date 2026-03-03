@@ -7,11 +7,25 @@ import MessageList from './MessageList';
 import TypingIndicator from './TypingIndicator';
 import MessageInput from '../MessageInput/MessageInput';
 
-export default function MessageThread({ showActionButtons }) {
+export default function MessageThread({ showActionButtons, variant = 'full' }) {
   const { activeOpportunityId, messages } = useChatStore();
   const { user } = useAuthStore();
   const opportunity = useChatStore((s) => s.opportunities.find((o) => o._id === s.activeOpportunityId));
   const currentMessages = messages[activeOpportunityId] || [];
+
+  // Define variant-specific styles
+  const variantStyles = {
+    full: {
+      container: 'flex flex-1 rounded-xl bg-gradient-to-l from-[#162850] to-[#1e6daf] p-[2px]',
+      inner: 'flex flex-1 flex-col rounded-xl bg-white min-h-0',
+    },
+    modal: {
+      container: 'flex flex-1 rounded-xl',
+      inner: 'flex flex-1 flex-col rounded-xl bg-white min-h-0',
+    },
+  };
+
+  const styles = variantStyles[variant] || variantStyles.full;
 
   useEffect(() => {
     if (activeOpportunityId) {
@@ -52,16 +66,17 @@ export default function MessageThread({ showActionButtons }) {
     );
   }
 return (
-  <div className="flex flex-1 rounded-xl bg-gradient-to-l from-pink-500 to-blue-500 p-[2px]">
-    <div className="flex flex-1 flex-col rounded-xl bg-white min-h-0">
+  <div className={styles.container}>
+    <div className={styles.inner}>
       
-      <MessageHeader opportunity={opportunity} />
+      {variant !== 'modal' && <MessageHeader opportunity={opportunity} />}
 
       {/* Scroll Area */}
       <div className="flex-1 overflow-y-auto min-h-0">
         <MessageList
           messages={currentMessages}
           currentUserId={user?._id}
+          variant={variant}
         />
       </div>
 

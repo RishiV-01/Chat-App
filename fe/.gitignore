@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# npm registry overrides (local dev only)
+.npmrc
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# IDE / Editor
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+.vite/
+
+# pnpm
+.pnpm-store
+
+# npm
+.npm
+*.tgz

@@ -4,27 +4,50 @@ import useChatStore from '../store/chatStore';
 import usePresenceStore from '../store/presenceStore';
 
 let socket = null;
+let isConnecting = false;
 
 export function connectSocket(token) {
+  // If already connected, return existing socket
   if (socket?.connected) return socket;
+  
+  // If connection is in progress, return existing socket
+  if (isConnecting && socket) return socket;
+  
+  // If there's a disconnected socket, clean it up first
+  if (socket && !socket.connected) {
+    socket.removeAllListeners();
+    socket.close();
+    socket = null;
+  }
+
+  isConnecting = true;
 
   socket = io(SOCKET_URL, {
+    auth: {
+      token: token
+    },
     reconnection: true,
     reconnectionDelay: 1000,
-    reconnectionDelayMax: 60000,
-    reconnectionAttempts: Infinity,
-    transports: ['websocket'],
-    upgrade: false,
-    timeout: 20000,
+    reconnectionDelayMax: 5000,
+    reconnectionAttempts: 5,
+    transports: ['websocket', 'polling'],
+    timeout: 10000,
+    autoConnect: true,
   });
 
   socket.on('connect', () => {
     console.log('Socket connected');
+    isConnecting = false;
     socket.emit('authenticate', { token });
   });
 
   socket.on('authenticated', (data) => {
     console.log('Socket authenticated:', data.user.name);
+  });
+
+  socket.on('connect_error', (error) => {
+    console.error('Socket connection error:', error.message);
+    isConnecting = false;
   });
 
   socket.on('new_message', (message) => {
@@ -76,8 +99,9 @@ export function connectSocket(token) {
     console.error('Socket error:', err);
   });
 
-  socket.on('disconnect', () => {
-    console.log('Socket disconnected');
+  socket.on('disconnect', (reason) => {
+    console.log('Socket disconnected:', reason);
+    isConnecting = false;
   });
 
   return socket;
@@ -85,6 +109,8 @@ export function connectSocket(token) {
 
 export function disconnectSocket() {
   if (socket) {
+    isConnecting = false;
+    socket.removeAllListeners();
     socket.disconnect();
     socket = null;
   }
